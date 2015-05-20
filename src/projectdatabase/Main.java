@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args) {
         Conexion.conDerby();
         Consultas query= new Consultas();
-        query.select("alumnos");
+        query.select(Metodos.nombTab());
     }
     
 }
