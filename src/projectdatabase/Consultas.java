@@ -6,6 +6,7 @@
 package projectdatabase;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  *
@@ -13,25 +14,51 @@ import java.sql.*;
  */
 public class Consultas {
 
-    public void select(String nTab) {
+    public ArrayList select() {
+        ArrayList<Modelo> aux = new ArrayList();
         try {
+            //Declarar consulta
             Conexion.s = Conexion.con.createStatement();
-            Conexion.rs = Conexion.s.executeQuery("select * from " + nTab);
-            ResultSetMetaData rsmd = Conexion.rs.getMetaData();
-            int nColumnas = rsmd.getColumnCount();
+            //Ejecutar consulta
+            Conexion.rs = Conexion.s.executeQuery("select * from alumnos");
             while (Conexion.rs.next()) {
-                for (int i = 1; i <= nColumnas; i++) {
-                    if (i > 1) {
-                        System.out.print(",  ");
-                    }
-                    String colValue = Conexion.rs.getString(i);
-                    System.out.print(rsmd.getColumnName(i) + " " + colValue);
-                }
-                System.out.println("");
+                aux.add(new Modelo(
+                        Integer.parseInt(Conexion.rs.getString("coda")),
+                        Conexion.rs.getString("nombre"), 
+                        Integer.parseInt(Conexion.rs.getString("nota"))));
             }
-        } catch (SQLIntegrityConstraintViolationException e) {
-            System.out.println("ERROR CLAVE REPETIDA ---> " + e);
-            select(nTab);
+        } catch (SQLException ex) {
+            System.out.println("ERROR ---> " + ex);
+        }
+        return aux;
+    }
+
+    public void insert(int coda, String nomb, int nota) {
+        try {
+            //Declarar consulta
+            Conexion.s = Conexion.con.createStatement();
+            //Ejecutar consulta
+            Conexion.s.executeUpdate("INSERT INTO alumnos values (" + coda + ",'" + nomb + "'," + nota + ')');
+            //Confirmacion
+            System.out.println("Inserción realizada");
+        } catch (SQLIntegrityConstraintViolationException ex) {
+            System.out.println("ERROR CLAVE REPETIDA ---> " + ex);
+            //En caso de que repitamos la primary key volvera a lanzar el metodo
+            insert(Metodos.cod(), Metodos.nombre(), Metodos.nota());
+        } catch (SQLException ex) {
+            System.out.println("ERROR ---> " + ex);
+        }
+    }
+
+    public void delete(int cod) {
+        try {
+            //Declarar consulta
+            Conexion.s = Conexion.con.createStatement();
+            //Ejecutar consulta
+            Conexion.s.executeUpdate("delete from alumnos where coda=" + cod);
+            //Confirmacion
+            System.out.println("Borrado realizado");
+
         } catch (SQLException ex) {
             System.out.println("ERROR ---> " + ex);
         }
